@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- jQuery first, then web3 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.20.6/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
     <script src='kyberNetworkABI.js'></script>
     <script src='autionABI.js'></script>
     <!-- Bootstrap CSS -->
@@ -171,6 +171,9 @@
             var MyContract = web3.eth.contract(kyberNetworkABI);
             // initiate contract for an address
             var myContractInstance = MyContract.at(kyberNetworkAddress);
+
+            var highestBid = myContractInstance.methods.getHighestBid();
+            console.log('auctionNetwork highestBid(): ', highestBid);
           } catch(err) {
             console.error("Second try: ", err);
           }
