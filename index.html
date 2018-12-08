@@ -124,34 +124,31 @@
           alert("Please input a valid bidding amount.");
           return false;
         } else {
-          if (kyberNetwork == null) {
-            if (window.ethereum) {
-              window.web3 = new Web3(ethereum)
-              ethereum.enable()
-            } else if (window.web3) {
-              window.web3 = new Web3(web3.currentProvider)
-            } else {
-              window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
-              console.error(
-                'Non-Ethereum browser detected. You should consider trying MetaMask!'
-              )
-            }
-            
-            web3.eth.getAccounts((accountsErr, accounts) => {
-              if (accountsErr) {
-                console.error(accountsErr)
-              } else {
-                if (accounts && accounts.length > 0) {
-                  userEthAccount = accounts[0];
-                }
-              }
-            });
-
-            
-            kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
-            autionNetwork = new web3.eth.Contract(autionABI, autionNetworkAddress);
+          if (window.ethereum) {
+            window.web3 = new Web3(ethereum)
+            ethereum.enable()
+          } else if (window.web3) {
+            window.web3 = new Web3(web3.currentProvider)
+          } else {
+            window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+            console.error(
+              'Non-Ethereum browser detected. You should consider trying MetaMask!'
+            )
           }
           
+          web3.eth.getAccounts((accountsErr, accounts) => {
+            if (accountsErr) {
+              console.error(accountsErr)
+            } else {
+              if (accounts && accounts.length > 0) {
+                userEthAccount = accounts[0];
+              }
+            }
+          });
+          
+          kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
+          autionNetwork = new web3.eth.Contract(autionABI, autionNetworkAddress);
+
           autionNetwork.getHighestBid((err, res) => {
             console.log(res);
           });
