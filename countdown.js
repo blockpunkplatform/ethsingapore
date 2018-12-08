@@ -5,7 +5,7 @@ function startCounter() {
     } else {
       console.log('getEndTime(): ', res);
       var endTime = res.c[0];
-
+      console.log("endTime: ", endTime);
       web3.eth.getBlockNumber((err, res) => {
         if (err) {
           console.error("web3.eth.blockNumber error: ", err);
