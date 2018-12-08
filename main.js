@@ -89,8 +89,8 @@ function doBidding(amount) {
       value: Web3.utils.toWei(amount, 'ether')
     }).then((res) => {
     console.log('placeBid(): ', res);
-    this.updateFundsByBidder();
-    this.updateHighestBid();
+    $('#bidAmountModal').modal('hide');
+    alert("Your bidding is created and processing.");
   }).catch((err) => {
     console.error("placeBid error: ", err);
   });
@@ -105,7 +105,6 @@ function startCounter() {
     this.runCounter(distance * 1000);
   }).catch((err) => {
     console.error("endTime error: ", err);
-    return 0;
   });
 }
 
