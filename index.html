@@ -108,10 +108,8 @@
       const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
       var selected_coin = "eth";
       var kyberNetwork = null;
-      var myKyberContractInstance = null;
       var userEthAccount = null;
       var auctionNetwork = null;
-      var auctionNetworkInstance = null;
 
       function onShowBidAmountModal(coin) {
         selected_coin = coin;
@@ -150,19 +148,35 @@
             }
           });
           
-          kyberNetwork = new web3.eth.Contract(kyberNetworkABI);
-          console.log(kyberNetwork);
-          myKyberContractInstance = kyberNetwork.at(kyberNetworkAddress);
-          console.log(myKyberContractInstance);
-          var exchangeValue = myKyberContractInstance.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2);
-          console.log('kyberNetwork exchangeValue: ', exchangeValue);
+          try {
+            kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
+            console.log(kyberNetwork);
+            auctionNetwork = new web3.eth.Contract(autionABI, auctionNetworkAddress);
+            console.log(auctionNetwork);
+            
+            var highestBid1 = auctionNetwork.methods.getHighestBid();
+            console.log('auctionNetwork highestBid: ', highestBid);
+            var highestBid = auctionNetwork.methods.getHighestBid();
+            console.log('auctionNetwork highestBid(): ', highestBid);
 
-          auctionNetwork = new web3.eth.Contract(autionABI);
-          console.log(auctionNetwork);
-          auctionNetworkInstance = auctionNetwork.at(auctionNetworkAddress);
-          console.log(auctionNetworkInstance);
-          var highestBid = auctionNetwork.methods.getHighestBid();
-          console.log('auctionNetwork highestBid: ', highestBid);
+            var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2, (err, res) => {
+              console.log(err);
+              console.log(res);
+            });
+            console.log('kyberNetwork exchangeValue: ', exchangeValue);
+          } catch (err) {
+            console.error("First try: ", err);
+          }
+          
+
+          try {
+            // creation of contract object
+            var MyContract = web3.eth.contract(kyberNetworkABI);
+            // initiate contract for an address
+            var myContractInstance = MyContract.at(kyberNetworkAddress);
+          } catch(err) {
+            console.error("Second try: ", err);
+          }
           
 
           // if (userEthAccount) {
