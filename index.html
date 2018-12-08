@@ -181,6 +181,7 @@
             return 0;
           } else {
             console.log("web3.eth.blockNumber ", res);
+            var blockNumber = res;
             var timestamp = web3.eth.getBlock(blockNumber, (err, res) => {
               if (err) {
                 console.error("web3.eth.getBlock error: ", err);
