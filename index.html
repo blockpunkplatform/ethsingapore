@@ -105,11 +105,11 @@
     <!-- Bidding function  -->
     <script>
       const kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
-      const autionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
+      const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
       var selected_coin = "eth";
       var kyberNetwork = null;
       var userEthAccount = null;
-      var autionNetwork = null;
+      var auctionNetwork = null;
 
       function onShowBidAmountModal(coin) {
         selected_coin = coin;
@@ -150,13 +150,14 @@
           
           kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
           console.log(kyberNetwork);
-          autionNetwork = new web3.eth.Contract(autionABI, autionNetworkAddress);
-          console.log(autionNetwork);
+          auctionNetwork = new web3.eth.Contract(autionABI, auctionNetworkAddress);
+          console.log(auctionNetwork);
           
-          autionNetwork.methods.getHighestBid((err, res) => {
-            console.log(res);
-          });
-
+          var highestBid = auctionNetwork.methods.getHighestBid().call();
+          console.log(highestBid);
+          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 5000000000000000000).call()
+          console.log(exchangeValue);
+          
           // if (userEthAccount) {
             
             // });
