@@ -1,32 +1,74 @@
 <html>
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- jQuery first, then web3 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+    <script src='kyberNetworkAPI.js'></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
   </head>
 
   <body>
-    <script src='kyberNetworkABI.js'></script>
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+    <div class="container">
+      <div class="widget">
+        <div class="row">
+          <div class="col-6 bg-light">
+              <img id="artwork_img"
+              src="https://png.pngtree.com/element_origin_min_pic/17/09/18/86f146e932d55ea3ffc59cf7a976398e.jpg" 
+              class="img-thumbnail mx-auto d-block" 
+              alt="artwork"
+              >
+          </div>
+          <div class="col-6 bg-warning text-dark">
+            <div>You are not winner</div>
+            <div>Pay 0.2 ETH to win</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6 bg-secondary nopadding">
+            <div class="row nopadding">
+              <button id="bid_eth_btn" type="button" class="col-4 btn btn-primary" onclick="onBidClick('eth')">ETH</button>
+              <button id="bid_dai_btn" type="button" class="col-4 btn btn-warning" onclick="onBidClick('dai')">DAI</button>
+              <button id="bid_knc_btn" type="button" class="col-4 btn btn-info" onclick="onBidClick('knc')">KNC</button>
+            </div>
+          </div>
+          <div class="col-6 bg-info text-white">
+              <div class="bid">You bid 0.2Eth</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col bg-success text-white clock">
+            <div id="countdown_txt">Loading... </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Optional JavaScript -->
     <script>
-      if (window.ethereum) {
-        window.web3 = new Web3(ethereum)
-        ethereum.enable()
-      } else if (window.web3) {
-        window.web3 = new Web3(web3.currentProvider)
-      } else {
-        window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
-        console.error(
-          'Non-Ethereum browser detected. You should consider trying MetaMask!'
-        )
+      function onBidClick(coin) {
+        console.log(coin);
+        if (window.ethereum) {
+          window.web3 = new Web3(ethereum)
+          ethereum.enable()
+        } else if (window.web3) {
+          window.web3 = new Web3(web3.currentProvider)
+        } else {
+          window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+          console.error(
+            'Non-Ethereum browser detected. You should consider trying MetaMask!'
+          )
+        }
+
+        kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9"
+        kyberNetwork = new web3.eth.Contract(kyberNetworkAPI, kyberNetworkAddress)
       }
 
-      kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9"
-      kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress)
-
-      function getExpectedRate(source, dest, srcQty) {
-        return kyberNetwork.methods.getExpectedRate(source, dest, srcQty).call()
-      }
-
-      function trade(
+      function onBid(
         source,
         srcAmount,
         dest,
@@ -49,10 +91,44 @@
           walletId
         ).send(options)
       }
-
-      function getUserCap(user) {
-        return kyberNetwork.methods.getUserCapInWei(user).call()
-      }
     </script>
+    <script>
+      function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+        return params;
+      }
+
+      function getArtworkJson(artwork_id) {
+        var url = "https://api.blockpunk.net/v0/artworks?id=eq." + artwork_id;
+        return $.getJSON(url, function(data) {
+          return data;
+        });
+      }
+      
+      var params = getQueryParams(document.location.search);
+      console.log(params);
+      var artwork_id = params['artwork_id'];
+      if ( artwork_id != null ){
+        getArtworkJson(artwork_id).then(function(data){
+          if (data.length > 0) {
+            console.log(data);
+            var artwork = data[0];
+            var thumb_url = artwork["image_url"].replace(".net/", ".net/300w/");
+            document.getElementById("artwork_img").src = thumb_url;
+          }
+        });
+      }
+      
+    </script>
+    <script src="countdown.js"></script>
+    <!-- Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   </body>
 </html>
