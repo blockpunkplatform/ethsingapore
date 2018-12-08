@@ -171,8 +171,8 @@
             var MyContract = web3.eth.contract(kyberNetworkABI);
             // initiate contract for an address
             var myContractInstance = MyContract.at(kyberNetworkAddress);
-
-            var highestBid = myContractInstance.methods.getHighestBid();
+            console.log(myContractInstance);
+            var highestBid = myContractInstance.getHighestBid();
             console.log('auctionNetwork highestBid(): ', highestBid);
           } catch(err) {
             console.error("Second try: ", err);
