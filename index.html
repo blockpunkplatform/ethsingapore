@@ -6,7 +6,7 @@
     <!-- jQuery first, then web3 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
-    <script src='kyberNetworkAPI.js'></script>
+    <script src='kyberNetworkABI.js'></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
@@ -31,9 +31,9 @@
         <div class="row">
           <div class="col-6 bg-secondary nopadding">
             <div class="row nopadding">
-              <button id="bid_eth_btn" type="button" class="col-4 btn btn-primary" onclick="onBidClick('eth')">ETH</button>
-              <button id="bid_dai_btn" type="button" class="col-4 btn btn-warning" onclick="onBidClick('dai')">DAI</button>
-              <button id="bid_knc_btn" type="button" class="col-4 btn btn-info" onclick="onBidClick('knc')">KNC</button>
+              <button id="bid_eth_btn" type="button" class="col-4 btn btn-primary" onclick="onShowBidAmountModal('eth')">ETH</button>
+              <button id="bid_dai_btn" type="button" class="col-4 btn btn-warning" onclick="onShowBidAmountModal('dai')">DAI</button>
+              <button id="bid_knc_btn" type="button" class="col-4 btn btn-info" onclick="onShowBidAmountModal('knc')">KNC</button>
             </div>
           </div>
           <div class="col-6 bg-info text-white">
@@ -47,28 +47,131 @@
         </div>
       </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="bidAmountModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bidAmountTitle">Bid Amount</h5>
+          </div>
+          <div class="modal-body">
+            <p>Input the amount</p>
+            <input type="number" id="bid_amount" class="form-control validate">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="onBiding()">Bid</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Optional JavaScript -->
+    <!-- Artwork Retrieve JavaScript -->
     <script>
-      function onBidClick(coin) {
-        console.log(coin);
-        if (window.ethereum) {
-          window.web3 = new Web3(ethereum)
-          ethereum.enable()
-        } else if (window.web3) {
-          window.web3 = new Web3(web3.currentProvider)
-        } else {
-          window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
-          console.error(
-            'Non-Ethereum browser detected. You should consider trying MetaMask!'
-          )
+      function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
         }
-
-        kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9"
-        kyberNetwork = new web3.eth.Contract(kyberNetworkAPI, kyberNetworkAddress)
+        return params;
       }
 
-      function onBid(
+      function getArtworkJson(artwork_id) {
+        var url = "https://api.blockpunk.net/v0/artworks?id=eq." + artwork_id;
+        return $.getJSON(url, function(data) {
+          return data;
+        });
+      }
+      
+      var artwork = null;
+      var params = getQueryParams(document.location.search);
+      console.log(params);
+      var artwork_id = params['artwork_id'];
+      if ( artwork_id != null ){
+        getArtworkJson(artwork_id).then(function(data){
+          if (data.length > 0) {
+            console.log(data);
+            artwork = data[0];
+            var thumb_url = artwork["image_url"].replace(".net/", ".net/300w/");
+            document.getElementById("artwork_img").src = thumb_url;
+          }
+        });
+      }
+    </script>
+    <!-- Bidding function  -->
+    <script>
+      var selected_coin = "eth";
+      var kyberNetwork = null;
+      var userEthAccount = null;
+
+      function onShowBidAmountModal(coin) {
+        selected_coin = coin;
+        $("#bidAmountModal").modal();
+        $("#bidAmountTitle").text("Bid with " + selected_coin.toUpperCase());
+      }
+
+      function onBiding() {
+        var bidAmount = $("#bid_amount").val();
+        console.log("bidAmount: ", bidAmount);
+        if (bidAmount === "") {
+          alert("Please input a valid bidding amount.");
+          return false;
+        } else {
+          if (kyberNetwork == null) {
+            if (window.ethereum) {
+              window.web3 = new Web3(ethereum)
+              ethereum.enable()
+            } else if (window.web3) {
+              window.web3 = new Web3(web3.currentProvider)
+            } else {
+              window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+              console.error(
+                'Non-Ethereum browser detected. You should consider trying MetaMask!'
+              )
+            }
+            
+            web3.eth.getAccounts((accountsErr, accounts) => {
+              if (accountsErr) {
+                console.error(accountsErr)
+              } else {
+                if (accounts && accounts.length > 0) {
+                  userEthAccount = accounts[0];
+                }
+              }
+            });
+
+            var kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
+            var kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
+          }
+          
+          // if (userEthAccount) {
+          //   var source = "";
+          //   switch (selected_coin){
+          //     case "eth":
+          //       source = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+          //       break;
+          //     case "dai":
+          //       source = '0xaD6D458402F60fD3Bd25163575031ACDce07538D';
+          //       break;
+          //     case "knc":
+          //       source = '0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6';
+          //       break;
+          //   }
+          //   var srcAmount = bidAmount;
+          //   var destAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+          //   // doBid();
+          // }
+        }
+      }
+
+      function getExpectedRate(source, dest, srcQty) {
+        return kyberNetwork.methods.getExpectedRate(source, dest, srcQty).call()
+      }
+
+      function doBid(
         source,
         srcAmount,
         dest,
@@ -91,40 +194,6 @@
           walletId
         ).send(options)
       }
-    </script>
-    <script>
-      function getQueryParams(qs) {
-        qs = qs.split('+').join(' ');
-        var params = {},
-            tokens,
-            re = /[?&]?([^=]+)=([^&]*)/g;
-        while (tokens = re.exec(qs)) {
-            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-        }
-        return params;
-      }
-
-      function getArtworkJson(artwork_id) {
-        var url = "https://api.blockpunk.net/v0/artworks?id=eq." + artwork_id;
-        return $.getJSON(url, function(data) {
-          return data;
-        });
-      }
-      
-      var params = getQueryParams(document.location.search);
-      console.log(params);
-      var artwork_id = params['artwork_id'];
-      if ( artwork_id != null ){
-        getArtworkJson(artwork_id).then(function(data){
-          if (data.length > 0) {
-            console.log(data);
-            var artwork = data[0];
-            var thumb_url = artwork["image_url"].replace(".net/", ".net/300w/");
-            document.getElementById("artwork_img").src = thumb_url;
-          }
-        });
-      }
-      
     </script>
     <script src="countdown.js"></script>
     <!-- Popper.js, then Bootstrap JS -->
