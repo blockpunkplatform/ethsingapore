@@ -27,8 +27,8 @@
               >
           </div>
           <div class="col-6 bg-warning text-dark">
-            <div>You are not winner</div>
-            <div>Pay 0.2 ETH to win</div>
+            <div id="msg1_txt">...</div>
+            <div id="msg2_txt">...</div>
           </div>
         </div>
         <div class="row">
@@ -40,7 +40,7 @@
             </div>
           </div>
           <div class="col-6 bg-info text-white">
-              <div class="bid">You bid 0.2Eth</div>
+              <div id="userBid_txt" class="bid">...</div>
           </div>
         </div>
         <div class="row">
@@ -76,6 +76,8 @@
       var kyberNetworkInstance = null;
       var auctionNetworkInstance = null;
       var userEthAddress = null;
+      var highestBidValue = null;
+      var userBidValue = null;
 
       if (window.ethereum) {
         window.web3 = new Web3(ethereum)
@@ -119,6 +121,8 @@
         console.log(auctionNetworkInstance);
 
         this.startCounter();
+        this.updateFundsByBidder();
+        this.updateHighestBid();
       } catch (err) {
         console.error("Create network objs error: ", err);
       }
@@ -183,7 +187,7 @@
         }
       }
 
-      function getHighestBid() {
+      function updateHighestBid() {
         // auctionNetworkInstance.methods.getHighestBid().call().then((res) => {
         //   console.log('getHighestBid(): ', res);
         //   return res;
@@ -196,26 +200,40 @@
         auctionNetworkInstance.getHighestBid((err, res) => {
           if (err) {
             console.error("getHighestBid error: ", err);
-            return 0;
-
           } else {
             console.log('getHighestBid(): ', res);
-            return res.c[0];
+            highestBidValue = res.c[0];
+            updateUi();
           }
         });
       }
 
-      function getFundByBidder() {
+      function updateFundsByBidder() {
         auctionNetworkInstance.fundsByBidder(userEthAddress , (err, res) => {
           if (err) {
             console.error("fundsByBidder error: ", err);
-            return 0;
-
           } else {
             console.log('fundsByBidder(): ', res);
-            return res.c[0];
+            userBidValue = res.c[0];
+            updateUi();
           }
         });
+      }
+
+      function updateUi() {
+        if (userBidValue) {
+          $('#userBid_txt').text("You bid " + userBidValue + " Eth");
+          if (highestBidValue) {
+            var msg1 = "You are the winner";
+            var msg2 = "Congratulation";
+            if (highestBidValue > userBidValue) {
+              msg1 = "You are not winner";
+              msg2 = "Pay " + highestBidValue - userBidValue + " ETH to win";
+            }
+            $('#msg1_txt').text(msg1);
+            $('#msg2_txt').text(msg2);
+          }
+        }
       }
 
       function doBid(
