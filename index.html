@@ -108,8 +108,10 @@
       const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
       var selected_coin = "eth";
       var kyberNetwork = null;
+      var myKyberContractInstance = null;
       var userEthAccount = null;
       var auctionNetwork = null;
+      var auctionNetworkInstance = null;
 
       function onShowBidAmountModal(coin) {
         selected_coin = coin;
@@ -148,21 +150,20 @@
             }
           });
           
-          kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
+          kyberNetwork = new web3.eth.contract(kyberNetworkABI);
+          myKyberContractInstance = kyberNetwork.at(kyberNetworkAddress);
           console.log(kyberNetwork);
-          auctionNetwork = new web3.eth.Contract(autionABI, auctionNetworkAddress);
-          console.log(auctionNetwork);
-          
-          var highestBid = auctionNetwork.methods.getHighestBid((err, res) => {
-            console.log(err);
-            console.log(res);
-          });
-          console.log('auctionNetwork highestBid: ', highestBid);
-          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2, (err, res) => {
-            console.log(err);
-            console.log(res);
-          });
+          console.log(myKyberContractInstance);
+          var exchangeValue = myKyberContractInstance.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2);
           console.log('kyberNetwork exchangeValue: ', exchangeValue);
+
+          auctionNetwork = new web3.eth.Contract(autionABI);
+          auctionNetworkInstance = auctionNetwork.at(auctionNetworkAddress);
+          console.log(auctionNetwork);
+          console.log(auctionNetworkInstance);
+          var highestBid = auctionNetwork.methods.getHighestBid();
+          console.log('auctionNetwork highestBid: ', highestBid);
+          
 
           // if (userEthAccount) {
             
