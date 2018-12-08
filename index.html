@@ -163,9 +163,9 @@
       }
 
       function updateUi() {
-        if (userBidValue) {
+        if (userBidValue != null) {
           $('#userBid_txt').text("You bid " + userBidValue + " Eth");
-          if (highestBidValue) {
+          if (highestBidValue != null) {
             var msg1 = "You are the winner";
             var msg2 = "Congratulation";
             if (highestBidValue > userBidValue) {
