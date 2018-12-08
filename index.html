@@ -246,18 +246,6 @@
         )
       }
       
-      console.log(web3);
-      web3.eth.getAccounts((accountsErr, accounts) => {
-        if (accountsErr) {
-          console.error("Get user eth_address error: ",accountsErr)
-        } else {
-          console.log("getAccounts: ", accounts);
-          if (accounts && accounts.length > 0) {
-            userEthAddress = accounts[0];
-          }
-        }
-      });
-
       // Create network objs
       try {
         kyberNetworkInstance = new web3.eth.Contract(
@@ -275,10 +263,22 @@
         // var auctionContract = web3.eth.contract(auctionABI)
         // auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
         console.log(auctionNetworkInstance);
+        
+        console.log(web3);
+        web3.eth.getAccounts((accountsErr, accounts) => {
+          if (accountsErr) {
+            console.error("Get user eth_address error: ",accountsErr)
+          } else {
+            console.log("getAccounts: ", accounts);
+            if (accounts && accounts.length > 0) {
+              userEthAddress = accounts[0];
+              this.updateFundsByBidder();
+              this.updateHighestBid();
+            }
+          }
+        });
 
         this.startCounter();
-        this.updateFundsByBidder();
-        this.updateHighestBid();
       } catch (err) {
         console.error("Create network objs error: ", err);
       }
