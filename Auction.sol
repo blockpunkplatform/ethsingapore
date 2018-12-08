@@ -4,56 +4,69 @@ contract Auction {
     // static
     address public owner;
     uint public bidIncrement;
-    uint public startTime;
     uint public endTime;
+    string public ipfsHash;
 
     // state
     bool public canceled;
+    bool private ended;
     uint public highestBindingBid;
     address public highestBidder;
     mapping(address => uint256) public fundsByBidder;
     bool ownerHasWithdrawn;
 
-    event LogBid(address bidder, uint bid, address highestBidder, uint highestBid, uint highestBindingBid);
-    event LogWithdrawal(address withdrawer, address withdrawalAccount, uint amount);
-    event LogCanceled();
+    event Bid(address bidder, uint bid, address highestBidder, uint highestBid, uint highestBindingBid);
+    event Withdrawal(address withdrawer, address withdrawalAccount, uint amount);
+    event Canceled();
 
-    function Auction(address _owner, uint duration) {
-        if (_owner == 0) throw;
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    modifier onlyNotOwner {
+        require(msg.sender != owner);
+        _;
+    }
+
+    modifier onlyBeforeEnd {
+        require((block.timestamp < endTime) && !(ended));
+        _;
+    }
+
+    modifier onlyAfterEnd {
+        require((block.timestamp > endTime) || ended);
+        _;
+    }
+
+    constructor(address _owner, uint _bidIncrement, uint _maxAuctionTime, string _ipfsHash) public {
+        require(_owner != 0);
 
         owner = _owner;
-        bidIncrement = 1;
-        startTime = block.timestamp;
-        endTime = block.timestamp + duration;
+        bidIncrement = _bidIncrement;
+        endTime = block.timestamp + _maxAuctionTime;
+        ipfsHash = _ipfsHash;
     }
 
     function getHighestBid()
-        constant
+        public
+        view
         returns (uint)
     {
         return fundsByBidder[highestBidder];
     }
 
     function placeBid()
+        public
         payable
         onlyBeforeEnd
-        onlyNotCanceled
         onlyNotOwner
         returns (bool success)
     {
-        // reject payments of 0 ETH
-        if (msg.value == 0) throw;
+        require(msg.value != 0);
+        require(fundsByBidder[msg.sender] + msg.value > highestBindingBid);
 
-        // calculate the user's total bid based on the current amount they've sent to the contract
-        // plus whatever has been sent with this transaction
         uint newBid = fundsByBidder[msg.sender] + msg.value;
-
-        // if the user isn't even willing to overbid the highest binding bid, there's nothing for us
-        // to do except revert the transaction.
-        if (newBid <= highestBindingBid) throw;
-
-        // grab the previous highest bid (before updating fundsByBidder, in case msg.sender is the
-        // highestBidder and is just increasing their maximum bid).
         uint highestBid = fundsByBidder[highestBidder];
 
         fundsByBidder[msg.sender] = newBid;
@@ -80,13 +93,13 @@ contract Auction {
             highestBid = newBid;
         }
 
-        LogBid(msg.sender, newBid, highestBidder, highestBid, highestBindingBid);
+        emit Bid(msg.sender, newBid, highestBidder, highestBid, highestBindingBid);
         return true;
     }
 
     function min(uint a, uint b)
         private
-        constant
+        pure
         returns (uint)
     {
         if (a < b) return a;
@@ -94,28 +107,30 @@ contract Auction {
     }
 
     function cancelAuction()
+        public
         onlyOwner
         onlyBeforeEnd
-        onlyNotCanceled
         returns (bool success)
     {
+        ended = true;
         canceled = true;
-        LogCanceled();
+        emit Canceled();
         return true;
     }
 
     function endAuction()
+        public
         onlyOwner
         onlyBeforeEnd
-        onlyNotCanceled
         returns (bool success)
     {
-        endTime = block.timestamp;
+        ended = true;
         return true;
     }
 
     function withdraw()
-        onlyEndedOrCanceled
+        public
+        onlyAfterEnd
         returns (bool success)
     {
         address withdrawalAccount;
@@ -125,16 +140,13 @@ contract Auction {
             // if the auction was canceled, everyone should simply be allowed to withdraw their funds
             withdrawalAccount = msg.sender;
             withdrawalAmount = fundsByBidder[withdrawalAccount];
-
         } else {
             // the auction finished without being canceled
-
             if (msg.sender == owner) {
                 // the auction's owner should be allowed to withdraw the highestBindingBid
                 withdrawalAccount = highestBidder;
                 withdrawalAmount = highestBindingBid;
                 ownerHasWithdrawn = true;
-
             } else if (msg.sender == highestBidder) {
                 // the highest bidder should only be allowed to withdraw the difference between their
                 // highest bid and the highestBindingBid
@@ -144,7 +156,6 @@ contract Auction {
                 } else {
                     withdrawalAmount = fundsByBidder[highestBidder] - highestBindingBid;
                 }
-
             } else {
                 // anyone who participated but did not win the auction should be allowed to withdraw
                 // the full amount of their funds
@@ -153,40 +164,13 @@ contract Auction {
             }
         }
 
-        if (withdrawalAmount == 0) throw;
+        require(withdrawalAmount != 0);
 
         fundsByBidder[withdrawalAccount] -= withdrawalAmount;
+        require(msg.sender.send(withdrawalAmount));
 
-        // send the funds
-        if (!msg.sender.send(withdrawalAmount)) throw;
-
-        LogWithdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
+        emit Withdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
 
         return true;
-    }
-
-    modifier onlyOwner {
-        if (msg.sender != owner) throw;
-        _;
-    }
-
-    modifier onlyNotOwner {
-        if (msg.sender == owner) throw;
-        _;
-    }
-
-    modifier onlyBeforeEnd {
-        if (block.timestamp > endTime) throw;
-        _;
-    }
-
-    modifier onlyNotCanceled {
-        if (canceled) throw;
-        _;
-    }
-
-    modifier onlyEndedOrCanceled {
-        if (block.timestamp < endTime && !canceled) throw;
-        _;
     }
 }
