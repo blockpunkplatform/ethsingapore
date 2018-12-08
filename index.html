@@ -151,7 +151,7 @@
           try {
             kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
             console.log(kyberNetwork);
-            auctionNetwork = new web3.eth.Contract(autionABI, auctionNetworkAddress);
+            auctionNetwork = new web3.eth.Contract(auctionABI, auctionNetworkAddress);
             console.log(auctionNetwork);
             
             var highestBid1 = auctionNetwork.methods.getHighestBid();
@@ -168,12 +168,13 @@
 
           try {
             // creation of contract object
-            var MyContract = web3.eth.contract(autionABI);
+            var MyContract = web3.eth.contract(auctionABI);
             // initiate contract for an address
             var myContractInstance = MyContract.at(auctionNetworkAddress);
             console.log(myContractInstance);
-            var highestBid = myContractInstance.getHighestBid();
-            console.log('auctionNetwork highestBid(): ', highestBid);
+            myContractInstance.getHighestBid((err, res) => {
+              console.log('auctionNetwork highestBid(): ', res);
+            });
           } catch(err) {
             console.error("Second try: ", err);
           }
