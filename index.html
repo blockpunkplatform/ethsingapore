@@ -173,10 +173,11 @@
           return false;
         } else {
           try {
-            this.getHighestBid();
-            // this.getEndTime();
-            // this.getFundByBidder();
-            // this.getWeb3CurrentTime();
+            var highestBid = this.getHighestBid();
+            console.log(highestBid);
+            this.getEndTime();
+            this.getFundByBidder();
+            this.getWeb3CurrentTime();
           } catch(err) {
             console.error("Second try: ", err);
           }
@@ -223,7 +224,7 @@
 
           } else {
             console.log('getHighestBid(): ', res);
-            return res;
+            return res.c[0];
           }
         });
       }
