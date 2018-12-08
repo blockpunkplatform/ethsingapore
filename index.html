@@ -154,10 +154,10 @@
           console.log(auctionNetwork);
           
           var highestBid = auctionNetwork.methods.getHighestBid().call();
-          console.log(highestBid);
-          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 5000000000000000000).call()
-          console.log(exchangeValue);
-          
+          console.log('auctionNetwork highestBid: ', highestBid);
+          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2).call()
+          console.log('kyberNetwork exchangeValue: ', exchangeValue);
+
           // if (userEthAccount) {
             
             // });
