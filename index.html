@@ -108,6 +108,11 @@
     <script>
       var selected_coin = "eth";
 
+      function formatEthPrice(price) {
+        const displayPrice = price / 1000;
+        return displayPrice.toFixed(2);
+      }
+
       function onShowBidAmountModal(coin) {
         selected_coin = coin;
         $("#bidAmountModal").modal();
@@ -144,7 +149,7 @@
             console.error("getHighestBid error: ", err);
           } else {
             console.log('getHighestBid(): ', res);
-            highestBidValue = res.c[0];
+            highestBidValue = formatEthPrice(res.c[0]);
             updateUi();
           }
         });
@@ -156,7 +161,7 @@
             console.error("fundsByBidder error: ", err);
           } else {
             console.log('fundsByBidder(): ', res);
-            userBidValue = res.c[0];
+            userBidValue = formatEthPrice(res.c[0]);
             updateUi();
           }
         });
@@ -170,7 +175,8 @@
             var msg2 = "Congratulation";
             if (highestBidValue > userBidValue) {
               msg1 = "You are not winner";
-              msg2 = "Pay " + highestBidValue - userBidValue + " ETH to win";
+              var needValue = highestBidValue - userBidValue;
+              msg2 = "Pay " + needValue + " ETH to win";
             }
             $('#msg1_txt').text(msg1);
             $('#msg2_txt').text(msg2);
