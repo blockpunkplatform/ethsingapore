@@ -3,7 +3,7 @@ pragma solidity ^0.4.8;
 contract Auction {
     // static
     address public owner;
-    uint public bidIncrement;
+    uint private bidIncrement;
     uint public startTime;
     uint public endTime;
 
