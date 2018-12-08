@@ -251,6 +251,7 @@
         if (accountsErr) {
           console.error("Get user eth_address error: ",accountsErr)
         } else {
+          console.log("getAccounts: ", accounts);
           if (accounts && accounts.length > 0) {
             userEthAddress = accounts[0];
           }
