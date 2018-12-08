@@ -1,0 +1,58 @@
+<html>
+  <head>
+  </head>
+
+  <body>
+    <script src='kyberNetworkABI.js'></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+    <script>
+      if (window.ethereum) {
+        window.web3 = new Web3(ethereum)
+        ethereum.enable()
+      } else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider)
+      } else {
+        window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+        console.error(
+          'Non-Ethereum browser detected. You should consider trying MetaMask!'
+        )
+      }
+
+      kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9"
+      kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress)
+
+      function getExpectedRate(source, dest, srcQty) {
+        return kyberNetwork.methods.getExpectedRate(source, dest, srcQty).call()
+      }
+
+      function trade(
+        source,
+        srcAmount,
+        dest,
+        destAddress,
+        maxDestAmount,
+        minConversionRate,
+        walletId
+      ) {
+        options = {from: web3.givenProvider.selectedAddress}
+        if (source == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+          options.value = srcAmount
+        }
+        return kyberNetwork.methods.trade(
+          source,
+          srcAmount,
+          dest,
+          destAddress,
+          maxDestAmount,
+          minConversionRate,
+          walletId
+        ).send(options)
+      }
+
+      function getUserCap(user) {
+        return kyberNetwork.methods.getUserCapInWei(user).call()
+      }
+    </script>
+  </body>
+</html>
