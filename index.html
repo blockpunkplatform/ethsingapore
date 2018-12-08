@@ -210,10 +210,7 @@
         auctionNetworkInstance.methods.getHighestBid().call().then((res) => {
           console.log('getHighestBid(): ', res);
           return res;
-        }).catch((err) => {
-          console.error("getHighestBid error: ", err);
-          return 0;
-        });
+        }).catch(console.error);
     
 
         // auctionNetworkInstance.getHighestBid((err, res) => {
