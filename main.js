@@ -1,5 +1,19 @@
+// create window.web3
+if (window.ethereum) {
+  window.web3 = new Web3(ethereum)
+  ethereum.enable()
+} else if (window.web3) {
+  window.web3 = new Web3(web3.currentProvider)
+} else {
+  window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+  console.error(
+    'Non-Ethereum browser detected. You should consider trying MetaMask!'
+  )
+}
+
 const kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
 const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
+var account = null;
 var kyberNetworkInstance = null;
 var auctionNetworkInstance = null;
 var userEthAddress = null;
@@ -7,6 +21,12 @@ var highestBidValue = null;
 var userBidValue = null;
 var selected_coin = "eth";
 var artwork = null;
+
+setInterval(() => {
+  web3.eth.getAccounts().then((accounts) => {
+    account = accounts[0]
+  }).catch(console.error)
+}, 1000);
 
 function formatEthPrice(price) {
   const displayPrice = price / 1000000000000000000;
@@ -70,7 +90,11 @@ function doBiddingWithKnc(amount) {
 }
 
 function doBidding(amount) {
-  auctionNetworkInstance.methods.placeBid(amount).call().then((res) => {
+  auctionNetworkInstance.methods.placeBid()
+    .send({
+      from: account,
+      value: Web3.utils.toWei(amount, 'ether')
+    }).then((res) => {
     console.log('placeBid(): ', res);
     this.updateFundsByBidder();
     this.updateHighestBid();
@@ -101,11 +125,11 @@ function runCounter(distance) {
     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
+
     // Output the result in an element with id="demo"
     document.getElementById("countdown_txt").innerHTML = hours + "h "
     + minutes + "m " + seconds + "s Remaining";
-    
+
     // If the count down is over, write some text 
     if (distance < 0) {
         clearInterval(x);
@@ -115,19 +139,6 @@ function runCounter(distance) {
         document.getElementById("bid_knc_btn").disabled = true;
     }
   }, 1000);
-}
-
-// create window.web3
-if (window.ethereum) {
-  window.web3 = new Web3(ethereum)
-  ethereum.enable()
-} else if (window.web3) {
-  window.web3 = new Web3(web3.currentProvider)
-} else {
-  window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
-  console.error(
-    'Non-Ethereum browser detected. You should consider trying MetaMask!'
-  )
 }
 
 // Create network objs
@@ -143,7 +154,7 @@ try {
     auctionNetworkAddress
   );
   console.log(auctionNetworkInstance);
-  
+
   console.log(web3);
   web3.eth.getAccounts((accountsErr, accounts) => {
     if (accountsErr) {
