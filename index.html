@@ -133,6 +133,7 @@
           alert("Please input a valid bidding amount.");
           return false;
         } else {
+          $('#bidAmountModal').modal('hide');
           try {
             switch(selected_coin) {
               case "eth":

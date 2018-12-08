@@ -89,10 +89,11 @@ function doBidding(amount) {
       value: Web3.utils.toWei(amount, 'ether')
     }).then((res) => {
     console.log('placeBid(): ', res);
-    $('#bidAmountModal').modal('hide');
-    alert("Your bidding is created and processing.");
+    this.updateFundsByBidder();
+    this.updateHighestBid();
   }).catch((err) => {
     console.error("placeBid error: ", err);
+    alert("Place Bidding Fail");
   });
 }
 
