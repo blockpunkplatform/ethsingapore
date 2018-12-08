@@ -151,15 +151,15 @@
           });
           
           kyberNetwork = new web3.eth.Contract(kyberNetworkABI);
-          myKyberContractInstance = kyberNetwork.at(kyberNetworkAddress);
           console.log(kyberNetwork);
+          myKyberContractInstance = kyberNetwork.at(kyberNetworkAddress);
           console.log(myKyberContractInstance);
           var exchangeValue = myKyberContractInstance.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2);
           console.log('kyberNetwork exchangeValue: ', exchangeValue);
 
           auctionNetwork = new web3.eth.Contract(autionABI);
-          auctionNetworkInstance = auctionNetwork.at(auctionNetworkAddress);
           console.log(auctionNetwork);
+          auctionNetworkInstance = auctionNetwork.at(auctionNetworkAddress);
           console.log(auctionNetworkInstance);
           var highestBid = auctionNetwork.methods.getHighestBid();
           console.log('auctionNetwork highestBid: ', highestBid);
