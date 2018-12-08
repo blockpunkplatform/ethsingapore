@@ -119,21 +119,6 @@
         $("#bidAmountTitle").text("Bid with " + selected_coin.toUpperCase());
       }
 
-      function onBiding() {
-        var bidAmount = $("#bid_amount").val();
-        console.log("bidAmount: ", bidAmount);
-        if (bidAmount === "") {
-          alert("Please input a valid bidding amount.");
-          return false;
-        } else {
-          try {
-            
-          } catch(err) {
-            console.error("Second try: ", err);
-          }
-        }
-      }
-
       function updateHighestBid() {
         // auctionNetworkInstance.methods.getHighestBid().call().then((res) => {
         //   console.log('getHighestBid(): ', res);
@@ -186,6 +171,21 @@
         console.log("highestBidValue ", highestBidValue);
       }
 
+      function onBiding() {
+        var bidAmount = $("#bid_amount").val();
+        console.log("bidAmount: ", bidAmount);
+        if (bidAmount === "") {
+          alert("Please input a valid bidding amount.");
+          return false;
+        } else {
+          try {
+            // TODO: call doBid here
+          } catch(err) {
+            console.error("Second try: ", err);
+          }
+        }
+      }
+
       function doBid(
         source,
         srcAmount,
@@ -199,15 +199,21 @@
         if (source == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
           options.value = srcAmount
         }
-        return kyberNetwork.methods.trade(
+        return kyberNetworkInstance.trade(
           source,
           srcAmount,
           dest,
           destAddress,
           maxDestAmount,
           minConversionRate,
-          walletId
-        ).send(options)
+          walletId,
+          (err, res) => {
+            if (err) {
+              console.log("kyberNetworkInstance.trade error: ", err);
+            } else {
+              console.log(res);
+            }
+          })
       }
     </script>
     <!-- Init Contract JavaScript -->
