@@ -64,28 +64,28 @@ function startCounter() {
   auctionNetworkInstance.methods.endTime().call().then((res) => {
     console.log('endTime(): ', res);
     var endTime = res;
-    // var now = new Date().getTime();
-    // var distance = endTime - now;
-    this.runCounter(1000*distance);
+    var now = new Date().getTime() / 1000;
+    var distance = endTime - now;
+    this.runCounter(distance * 1000);
 
     // web3.eth.getBlockNumber().then((res) => {
-    //    console.log("web3.eth.blockNumber ", res);
-    //    var blockNumber = res;
-    //    web3.eth.getBlock(blockNumber).then((res) => {
-          // console.log("web3.eth.getBlock ", res);
-    //      var currentTime = res.timestamp;
-    //      console.log("current timestamp: ", currentTime);
-    //      var distance = endTime - currentTime;
-    //      console.log("distance = ", distance);
-    //      this.runCounter(1000*distance);
-    //    }).catch((err) => {
-    //      console.error("web3.eth.getBlock error: ", err);
-    //      return 0;
-    //    });
+    //     console.log("web3.eth.blockNumber ", res);
+    //     var blockNumber = res;
+    //     web3.eth.getBlock(blockNumber).then((res) => {
+    //       // console.log("web3.eth.getBlock ", res);
+    //       var currentTime = res.timestamp;
+    //       console.log("current timestamp: ", currentTime);
+    //       var distance = endTime - currentTime;
+    //       console.log("distance = ", distance);
+    //       this.runCounter(distance);
+    //     }).catch((err) => {
+    //       console.error("web3.eth.getBlock error: ", err);
+    //       return 0;
+    //     });
     // }).catch((err) => {
-      console.error("getBlockNumber error: ", err);
-      return 0;
-    });
+    //   console.error("getBlockNumber error: ", err);
+    //   return 0;
+    // });
   }).catch((err) => {
     console.error("endTime error: ", err);
     return 0;
