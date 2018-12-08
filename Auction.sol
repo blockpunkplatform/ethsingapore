@@ -9,7 +9,6 @@ contract Auction {
 
     // state
     bool public canceled;
-    bool private ended;
     uint public highestBindingBid;
     address public highestBidder;
     mapping(address => uint256) public fundsByBidder;
@@ -30,12 +29,12 @@ contract Auction {
     }
 
     modifier onlyBeforeEnd {
-        require((block.timestamp < endTime) && !(ended));
+        require(block.timestamp < endTime);
         _;
     }
 
     modifier onlyAfterEnd {
-        require((block.timestamp > endTime) || ended);
+        require(block.timestamp > endTime);
         _;
     }
 
@@ -112,7 +111,6 @@ contract Auction {
         onlyBeforeEnd
         returns (bool success)
     {
-        ended = true;
         canceled = true;
         emit Canceled();
         return true;
@@ -124,7 +122,7 @@ contract Auction {
         onlyBeforeEnd
         returns (bool success)
     {
-        ended = true;
+        endTime = block.timestamp;
         return true;
     }
 
