@@ -143,13 +143,16 @@
               if (accounts && accounts.length > 0) {
                 userEthAccount = accounts[0];
               }
+              console.log(accounts);
             }
           });
           
           kyberNetwork = new web3.eth.Contract(kyberNetworkABI, kyberNetworkAddress);
+          console.log(kyberNetwork);
           autionNetwork = new web3.eth.Contract(autionABI, autionNetworkAddress);
-
-          autionNetwork.getHighestBid((err, res) => {
+          console.log(autionNetwork);
+          
+          autionNetwork.methods.getHighestBid((err, res) => {
             console.log(res);
           });
 
