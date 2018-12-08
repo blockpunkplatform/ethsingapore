@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.20.6/dist/web3.min.js"></script>
     <script src='kyberNetworkABI.js'></script>
     <script src='autionABI.js'></script>
+    <script src="countdown.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
@@ -116,6 +117,8 @@
         var auctionContract = web3.eth.contract(auctionABI)
         auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
         console.log(auctionNetworkInstance);
+
+        this.startCounter();
       } catch (err) {
         console.error("Create network objs error: ", err);
       }
@@ -173,38 +176,11 @@
           return false;
         } else {
           try {
-            var highestBid = this.getHighestBid();
-            console.log(highestBid);
-            this.getEndTime();
-            this.getFundByBidder();
-            this.getWeb3CurrentTime();
+            
           } catch(err) {
             console.error("Second try: ", err);
           }
         }
-      }
-
-      function getWeb3CurrentTime() {
-        web3.eth.getBlockNumber((err, res) => {
-          if (err) {
-            console.error("web3.eth.blockNumber error: ", err);
-            return 0;
-          } else {
-            console.log("web3.eth.blockNumber ", res);
-            var blockNumber = res;
-            var timestamp = web3.eth.getBlock(blockNumber, (err, res) => {
-              if (err) {
-                console.error("web3.eth.getBlock error: ", err);
-                return 0;
-              } else {
-                // console.log("web3.eth.getBlock ", res);
-                var result = res.timestamp;
-                console.log("current timestamp: ", result);
-                return result;
-              }
-            });
-          }
-        });
       }
 
       function getHighestBid() {
@@ -229,19 +205,6 @@
         });
       }
 
-      function getEndTime() {
-        auctionNetworkInstance.endTime((err, res) => {
-          if (err) {
-            console.error("getEndTime error: ", err);
-            return 0;
-
-          } else {
-            console.log('getEndTime(): ', res);
-            return res;
-          }
-        });
-      }
-
       function getFundByBidder() {
         auctionNetworkInstance.fundsByBidder(userEthAddress , (err, res) => {
           if (err) {
@@ -250,7 +213,7 @@
 
           } else {
             console.log('fundsByBidder(): ', res);
-            return res;
+            return res.c[0];
           }
         });
       }
@@ -279,7 +242,6 @@
         ).send(options)
       }
     </script>
-    <script src="countdown.js"></script>
     <!-- Popper.js, then Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
