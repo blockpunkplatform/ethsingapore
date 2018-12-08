@@ -13,8 +13,13 @@ if (window.ethereum) {
 
 const kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
 const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
+const ETHTokenAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+const DAITokenAddress = "0xaD6D458402F60fD3Bd25163575031ACDce07538D"
+const KNCTokenAddress = "0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6"
 var kyberNetworkInstance = null;
 var auctionNetworkInstance = null;
+var DAIInstance = null;
+var KNCInstance = null;
 var userEthAddress = null;
 var highestBidValue = null;
 var userBidValue = null;
@@ -56,7 +61,7 @@ function swapToken(
   walletId
 ) {
   options = {from: web3.givenProvider.selectedAddress}
-  if (source == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+  if (source == ETHTokenAddress) {
     options.value = srcAmount
   }
   return kyberNetworkInstance.methods.trade(
@@ -69,17 +74,24 @@ function swapToken(
     walletId
   )
   .send(options)
-  .then((res) => {
-    console.log(res);
-  });
 }
 
 function doBiddingWithDai(amount) {
   // swap DAI token to ETH first
+  DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, rec) => {
+    swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (rec) => {
+      doBidding(rec.events.ExecuteTrade.returnValues.actualDestAmount)
+    });
+  })
 }
 
 function doBiddingWithKnc(amount) {
   // swap KNC token to ETH first
+  KNCInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, rec) => {
+    swapToken(KNCTokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (rec) => {
+      doBidding(rec.events.ExecuteTrade.returnValues.actualDestAmount)
+    });
+  })
 }
 
 function doBidding(amount) {
@@ -145,6 +157,18 @@ try {
   auctionNetworkInstance = new web3.eth.Contract(
     auctionABI,
     auctionNetworkAddress
+  );
+  console.log(auctionNetworkInstance);
+
+  DAIInstance = new web3.eth.Contract(
+    ERC20ABI,
+    DAITokenAddress
+  );
+  console.log(auctionNetworkInstance);
+
+  KNCInstance = new web3.eth.Contract(
+    ERC20ABI,
+    KNCTokenAddress
   );
   console.log(auctionNetworkInstance);
 
