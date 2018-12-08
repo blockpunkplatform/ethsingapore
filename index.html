@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- jQuery first, then web3 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.20.6/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.20.6/dist/web3.min.js"></script> -->
     <script src='kyberNetworkABI.js'></script>
     <script src='autionABI.js'></script>
     <!-- Bootstrap CSS -->
@@ -100,12 +101,20 @@
 
       // Create network objs
       try {
-        var kyberContract = web3.eth.contract(kyberNetworkABI);
-        kyberNetworkInstance = kyberContract.at(kyberNetworkAddress);
+        kyberNetworkInstance = new web3.eth.Contract(
+          kyberNetworkABI,
+          kyberNetworkAddress
+        );
+        // var kyberContract = web3.eth.contract(kyberNetworkABI);
+        // kyberNetworkInstance = kyberContract.at(kyberNetworkAddress);
         console.log(kyberNetworkInstance);
 
-        var auctionContract = web3.eth.contract(auctionABI)
-        auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
+        auctionNetworkInstance = new web3.eth.Contract(
+          auctionABI,
+          auctionNetworkAddress
+        );
+        // var auctionContract = web3.eth.contract(auctionABI)
+        // auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
         console.log(auctionNetworkInstance);
       } catch (err) {
         console.error("Create network objs error: ", err);
@@ -165,9 +174,9 @@
         } else {
           try {
             this.getHighestBid();
-            this.getEndTime();
-            this.getFundByBidder();
-            this.getWeb3CurrentTime();
+            // this.getEndTime();
+            // this.getFundByBidder();
+            // this.getWeb3CurrentTime();
           } catch(err) {
             console.error("Second try: ", err);
           }
@@ -198,16 +207,25 @@
       }
 
       function getHighestBid() {
-        auctionNetworkInstance.getHighestBid((err, res) => {
-          if (err) {
-            console.error("getHighestBid error: ", err);
-            return 0;
-
-          } else {
-            console.log('getHighestBid(): ', res);
-            return res;
-          }
+        auctionNetworkInstance.methods.getHighestBid().call().then((res) => {
+          console.log('getHighestBid(): ', res);
+          return res;
+        }).catch((err) => {
+          console.error("getHighestBid error: ", err);
+          return 0;
         });
+    
+
+        // auctionNetworkInstance.getHighestBid((err, res) => {
+        //   if (err) {
+        //     console.error("getHighestBid error: ", err);
+        //     return 0;
+
+        //   } else {
+        //     console.log('getHighestBid(): ', res);
+        //     return res;
+        //   }
+        // });
       }
 
       function getEndTime() {
