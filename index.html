@@ -153,9 +153,9 @@
           auctionNetwork = new web3.eth.Contract(autionABI, auctionNetworkAddress);
           console.log(auctionNetwork);
           
-          var highestBid = auctionNetwork.methods.getHighestBid().call();
+          var highestBid = auctionNetwork.methods.getHighestBid();
           console.log('auctionNetwork highestBid: ', highestBid);
-          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2).call()
+          var exchangeValue = kyberNetwork.methods.getExpectedRate('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 2);
           console.log('kyberNetwork exchangeValue: ', exchangeValue);
 
           // if (userEthAccount) {
