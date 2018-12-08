@@ -175,7 +175,7 @@
       }
 
       function getWeb3CurrentTime() {
-        var blockNumber = web3.eth.blockNumber((err, res) => {
+        web3.eth.blockNumber((err, res) => {
           if (err) {
             console.error("web3.eth.blockNumber error: ", err);
             return 0;
