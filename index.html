@@ -69,6 +69,48 @@
 
     <!-- Artwork Retrieve JavaScript -->
     <script>
+      const kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
+      const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
+      var kyberNetworkInstance = null;
+      var auctionNetworkInstance = null;
+      var userEthAddress = null;
+
+      if (window.ethereum) {
+        window.web3 = new Web3(ethereum)
+        ethereum.enable()
+      } else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider)
+      } else {
+        window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
+        console.error(
+          'Non-Ethereum browser detected. You should consider trying MetaMask!'
+        )
+      }
+      
+      web3.eth.getAccounts((accountsErr, accounts) => {
+        if (accountsErr) {
+          console.error("Get user eth_address error: ",accountsErr)
+        } else {
+          if (accounts && accounts.length > 0) {
+            userEthAddress = accounts[0];
+          }
+        }
+      });
+
+      // Create network objs
+      try {
+        var kyberContract = web3.eth.contract(kyberNetworkABI);
+        kyberNetworkInstance = kyberContract.at(kyberNetworkAddress);
+        console.log(kyberNetworkInstance);
+
+        var auctionContract = web3.eth.contract(auctionABI)
+        auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
+        console.log(auctionNetworkInstance);
+      } catch (err) {
+        console.error("Create network objs error: ", err);
+      }
+    </script>
+    <script>
       function getQueryParams(qs) {
         qs = qs.split('+').join(' ');
         var params = {},
@@ -104,12 +146,7 @@
     </script>
     <!-- Bidding function  -->
     <script>
-      const kyberNetworkAddress = "0x91a502C678605fbCe581eae053319747482276b9";
-      const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
       var selected_coin = "eth";
-      var kyberNetworkInstance = null;
-      var auctionNetworkInstance = null;
-      var userEthAddress = null;
 
       function onShowBidAmountModal(coin) {
         selected_coin = coin;
@@ -124,60 +161,38 @@
           alert("Please input a valid bidding amount.");
           return false;
         } else {
-          if (kyberNetworkInstance == null || auctionNetworkInstance == null) {
-            if (window.ethereum) {
-              window.web3 = new Web3(ethereum)
-              ethereum.enable()
-            } else if (window.web3) {
-              window.web3 = new Web3(web3.currentProvider)
-            } else {
-              window.web3 = new Web3("https://ropsten.infura.io/v3/ca8261a97ffc47c19f43526ff6b3fa7b")
-              console.error(
-                'Non-Ethereum browser detected. You should consider trying MetaMask!'
-              )
-            }
-            
-            web3.eth.getAccounts((accountsErr, accounts) => {
-              if (accountsErr) {
-                console.error("Get user eth_address error: ",accountsErr)
+          try {
+            auctionNetworkInstance.getHighestBid.call((err, res) => {
+              if (err) {
+                console.error("getHighestBid error: ", err)
               } else {
-                if (accounts && accounts.length > 0) {
-                  userEthAddress = accounts[0];
-                }
+                console.log('auctionNetworkInstance highestBid(): ', res);
               }
             });
-            
-            // Create network objs
-            try {
-              var kyberContract = web3.eth.contract(kyberNetworkABI);
-              kyberNetworkInstance = kyberContract.at(kyberNetworkAddress);
-              console.log(kyberNetworkInstance);
-
-              var auctionContract = web3.eth.contract(auctionABI)
-              auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
-              console.log(auctionNetworkInstance);
-            } catch (err) {
-              console.error("Create network objs error: ", err);
-            }
-          }
-
-          try {
-            auctionNetworkInstance.getHighestBid((err, res) => {
-              console.log('auctionNetworkInstance highestBid err: ', err);
-              console.log('auctionNetworkInstance highestBid(): ', res);
-            });
-            auctionNetworkInstance.endTime((err, res) => {
+            auctionNetworkInstance.endTime.call((err, res) => {
               console.log('auctionNetworkInstance endTime err: ', err);
               console.log("auctionNetworkInstance endTime: ", res);
             });
 
-            var result = auctionNetworkInstance.getHighestBid();
+            var result = auctionNetworkInstance.getHighestBid.call();
             console.log("result: ", result);
           } catch(err) {
             console.error("Second try: ", err);
           }
-          
         }
+      }
+
+      function getHighestBid() {
+        auctionNetworkInstance.getHighestBid((err, res) => {
+          if (err) {
+            console.error("getHighestBid error: ", err);
+            return 0;
+
+          } else {
+            console.log('auctionNetworkInstance highestBid(): ', res);
+            return res;
+          }
+        });
       }
 
       function getExpectedRate(source, dest, srcQty) {
