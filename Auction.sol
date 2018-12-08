@@ -180,10 +180,10 @@ contract Auction {
         _;
     }
 
-    modifier onlyBeforeEnd {
-        require(block.timestamp > endTime);
-        _;
-    }
+  modifier onlyBeforeEnd {
+       require(block.timestamp < endTime);
+       _;
+   }
 
     modifier onlyNotCanceled {
         require(!canceled);
