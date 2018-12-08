@@ -87,6 +87,7 @@
         )
       }
       
+      console.log(web3);
       web3.eth.getAccounts((accountsErr, accounts) => {
         if (accountsErr) {
           console.error("Get user eth_address error: ",accountsErr)
@@ -174,10 +175,16 @@
       }
 
       function getWeb3CurrentTime() {
-        var blockNumber = web3.eth.blockNumber;
-        var timestamp = web3.eth.getBlock(blockNumber).timestamp;
-        console.log(timestamp);
-        return timestamp;
+        var blockNumber = web3.eth.blockNumber((err, res) => {
+          if (err) {
+            console.error("web3.eth.blockNumber error: ", err);
+            return 0;
+          } else {
+            console.log("web3.eth.blockNumber ", res);
+            var timestamp = web3.eth.getBlock(blockNumber).timestamp;
+            return timestamp;
+          }
+        });
       }
 
       function getHighestBid() {
