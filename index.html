@@ -153,11 +153,8 @@
           }
           
           autionNetwork.getHighestBid((err, res) => {
-            if (res) {
-              self.setState({
-                contractPrice: priceRes.toNumber()
-              });
-            }
+            console.log(res);
+          });
 
           // if (userEthAccount) {
             
@@ -177,7 +174,7 @@
           //   var srcAmount = bidAmount;
           //   var destAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
           //   // doBid();
-          }
+          // }
         }
       }
 
