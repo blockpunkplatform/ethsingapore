@@ -85,7 +85,6 @@
         });
       }
       
-      var artwork = null;
       var params = getQueryParams(document.location.search);
       console.log(params);
       var artwork_id = params['artwork_id'];
@@ -135,9 +134,19 @@
           return false;
         } else {
           try {
-            // TODO: call doBid here
+            switch(selected_coin) {
+              case "eth":
+                doBidding(bidAmount);
+                break;
+              case "dai":
+                doBiddingWithDai(amount);
+                break;
+              case "knc":
+                doBiddingWithKnc(amount);
+                break;
+            }
           } catch(err) {
-            console.error("Second try: ", err);
+            console.error("DoBit error: ", err);
           }
         }
       }

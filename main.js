@@ -6,6 +6,7 @@ var userEthAddress = null;
 var highestBidValue = null;
 var userBidValue = null;
 var selected_coin = "eth";
+var artwork = null;
 
 function formatEthPrice(price) {
   const displayPrice = price / 1000000000000000000;
@@ -32,7 +33,7 @@ function updateFundsByBidder() {
   });
 }
 
-function doBid(
+function swapToken(
   source,
   srcAmount,
   dest,
@@ -57,6 +58,24 @@ function doBid(
   .send(options)
   .then((res) => {
     console.log(res);
+  });
+}
+
+function doBiddingWithDai(amount) {
+  // swap DAI token to ETH first
+}
+
+function doBiddingWithKnc(amount) {
+  // swap KNC token to ETH first
+}
+
+function doBidding(amount) {
+  auctionNetworkInstance.methods.placeBid(amount).call().then((res) => {
+    console.log('placeBid(): ', res);
+    this.updateFundsByBidder();
+    this.updateHighestBid();
+  }).catch((err) => {
+    console.error("placeBid error: ", err);
   });
 }
 
