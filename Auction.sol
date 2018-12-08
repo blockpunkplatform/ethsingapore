@@ -4,8 +4,8 @@ contract Auction {
     // static
     address public owner;
     uint public bidIncrement;
+    uint public startTime;
     uint public endTime;
-    string public ipfsHash;
 
     // state
     bool public canceled;
@@ -14,42 +14,22 @@ contract Auction {
     mapping(address => uint256) public fundsByBidder;
     bool ownerHasWithdrawn;
 
-    event Bid(address bidder, uint bid, address highestBidder, uint highestBid, uint highestBindingBid);
-    event Withdrawal(address withdrawer, address withdrawalAccount, uint amount);
-    event Canceled();
+    event LogBid(address bidder, uint bid, address highestBidder, uint highestBid, uint highestBindingBid);
+    event LogWithdrawal(address withdrawer, address withdrawalAccount, uint amount);
+    event LogCanceled();
 
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    modifier onlyNotOwner {
-        require(msg.sender != owner);
-        _;
-    }
-
-    modifier onlyBeforeEnd {
-        require(block.timestamp < endTime);
-        _;
-    }
-
-    modifier onlyAfterEnd {
-        require(block.timestamp > endTime);
-        _;
-    }
-
-    constructor(address _owner, uint _bidIncrement, uint _maxAuctionTime, string _ipfsHash) public {
-        require(_owner != 0);
+    constructor(address _owner, uint duration) public {
+        require(_owner != 0x0);
 
         owner = _owner;
-        bidIncrement = _bidIncrement;
-        endTime = block.timestamp + _maxAuctionTime;
-        ipfsHash = _ipfsHash;
+        bidIncrement = 1;
+        startTime = block.timestamp;
+        endTime = block.timestamp + duration;
     }
 
     function getHighestBid()
         public
-        view
+        constant
         returns (uint)
     {
         return fundsByBidder[highestBidder];
@@ -59,13 +39,23 @@ contract Auction {
         public
         payable
         onlyBeforeEnd
+        onlyNotCanceled
         onlyNotOwner
         returns (bool success)
     {
+        // reject payments of 0 ETH
         require(msg.value != 0);
-        require(fundsByBidder[msg.sender] + msg.value > highestBindingBid);
 
+        // calculate the user's total bid based on the current amount they've sent to the contract
+        // plus whatever has been sent with this transaction
         uint newBid = fundsByBidder[msg.sender] + msg.value;
+
+        // if the user isn't even willing to overbid the highest binding bid, there's nothing for us
+        // to do except revert the transaction.
+        require(newBid > highestBindingBid);
+
+        // grab the previous highest bid (before updating fundsByBidder, in case msg.sender is the
+        // highestBidder and is just increasing their maximum bid).
         uint highestBid = fundsByBidder[highestBidder];
 
         fundsByBidder[msg.sender] = newBid;
@@ -92,13 +82,13 @@ contract Auction {
             highestBid = newBid;
         }
 
-        emit Bid(msg.sender, newBid, highestBidder, highestBid, highestBindingBid);
+        emit LogBid(msg.sender, newBid, highestBidder, highestBid, highestBindingBid);
         return true;
     }
 
     function min(uint a, uint b)
         private
-        pure
+        constant
         returns (uint)
     {
         if (a < b) return a;
@@ -109,10 +99,11 @@ contract Auction {
         public
         onlyOwner
         onlyBeforeEnd
+        onlyNotCanceled
         returns (bool success)
     {
         canceled = true;
-        emit Canceled();
+        emit LogCanceled();
         return true;
     }
 
@@ -120,6 +111,7 @@ contract Auction {
         public
         onlyOwner
         onlyBeforeEnd
+        onlyNotCanceled
         returns (bool success)
     {
         endTime = block.timestamp;
@@ -128,7 +120,7 @@ contract Auction {
 
     function withdraw()
         public
-        onlyAfterEnd
+        onlyEndedOrCanceled
         returns (bool success)
     {
         address withdrawalAccount;
@@ -138,13 +130,16 @@ contract Auction {
             // if the auction was canceled, everyone should simply be allowed to withdraw their funds
             withdrawalAccount = msg.sender;
             withdrawalAmount = fundsByBidder[withdrawalAccount];
+
         } else {
             // the auction finished without being canceled
+
             if (msg.sender == owner) {
                 // the auction's owner should be allowed to withdraw the highestBindingBid
                 withdrawalAccount = highestBidder;
                 withdrawalAmount = highestBindingBid;
                 ownerHasWithdrawn = true;
+
             } else if (msg.sender == highestBidder) {
                 // the highest bidder should only be allowed to withdraw the difference between their
                 // highest bid and the highestBindingBid
@@ -154,6 +149,7 @@ contract Auction {
                 } else {
                     withdrawalAmount = fundsByBidder[highestBidder] - highestBindingBid;
                 }
+
             } else {
                 // anyone who participated but did not win the auction should be allowed to withdraw
                 // the full amount of their funds
@@ -165,10 +161,37 @@ contract Auction {
         require(withdrawalAmount != 0);
 
         fundsByBidder[withdrawalAccount] -= withdrawalAmount;
+
+        // send the funds
         require(msg.sender.send(withdrawalAmount));
 
-        emit Withdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
+        emit LogWithdrawal(msg.sender, withdrawalAccount, withdrawalAmount);
 
         return true;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    modifier onlyNotOwner {
+        require(msg.sender != owner);
+        _;
+    }
+
+    modifier onlyBeforeEnd {
+        require(block.timestamp > endTime);
+        _;
+    }
+
+    modifier onlyNotCanceled {
+        require(!canceled);
+        _;
+    }
+
+    modifier onlyEndedOrCanceled {
+        require((block.timestamp > endTime) || canceled);
+        _;
     }
 }
