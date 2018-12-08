@@ -185,9 +185,11 @@
             var timestamp = web3.eth.getBlock(blockNumber, (err, res) => {
               if (err) {
                 console.error("web3.eth.getBlock error: ", err);
+                return 0;
               } else {
-                console.log("web3.eth.getBlock ", res);
+                // console.log("web3.eth.getBlock ", res);
                 var result = res.timestamp;
+                console.log("current timestamp: ", result);
                 return result;
               }
             });
