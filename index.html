@@ -163,24 +163,21 @@
           return false;
         } else {
           try {
-            auctionNetworkInstance.getHighestBid.call((err, res) => {
-              if (err) {
-                console.error("getHighestBid error: ", err)
-              } else {
-                console.log('auctionNetworkInstance highestBid(): ', res);
-              }
-            });
-            auctionNetworkInstance.endTime.call((err, res) => {
-              console.log('auctionNetworkInstance endTime err: ', err);
-              console.log("auctionNetworkInstance endTime: ", res);
-            });
-
-            var result = auctionNetworkInstance.getHighestBid.call();
-            console.log("result: ", result);
+            this.getHighestBid();
+            this.getEndTime();
+            this.getFundByBidder();
+            this.getWeb3CurrentTime();
           } catch(err) {
             console.error("Second try: ", err);
           }
         }
+      }
+
+      function getWeb3CurrentTime() {
+        var blockNumber = web3.eth.blockNumber;
+        var timestamp = web3.eth.getBlock(blockNumber).timestamp;
+        console.log(timestamp);
+        return timestamp;
       }
 
       function getHighestBid() {
@@ -190,7 +187,33 @@
             return 0;
 
           } else {
-            console.log('auctionNetworkInstance highestBid(): ', res);
+            console.log('getHighestBid(): ', res);
+            return res;
+          }
+        });
+      }
+
+      function getEndTime() {
+        auctionNetworkInstance.endTime((err, res) => {
+          if (err) {
+            console.error("getEndTime error: ", err);
+            return 0;
+
+          } else {
+            console.log('getEndTime(): ', res);
+            return res;
+          }
+        });
+      }
+
+      function getFundByBidder() {
+        auctionNetworkInstance.fundsByBidder(userEthAddress , (err, res) => {
+          if (err) {
+            console.error("fundsByBidder error: ", err);
+            return 0;
+
+          } else {
+            console.log('fundsByBidder(): ', res);
             return res;
           }
         });
