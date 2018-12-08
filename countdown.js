@@ -1,33 +1,59 @@
 function startCounter() {
-  auctionNetworkInstance.endTime((err, res) => {
-    if (err) {
-      console.error("getEndTime error: ", err);
-    } else {
-      console.log('getEndTime(): ', res);
-      var endTime = res.c[0];
-      console.log("endTime: ", endTime);
-      web3.eth.getBlockNumber((err, res) => {
-        if (err) {
-          console.error("web3.eth.blockNumber error: ", err);
-        } else {
-          console.log("web3.eth.blockNumber ", res);
-          var blockNumber = res;
-          web3.eth.getBlock(blockNumber, (err, res) => {
-            if (err) {
-              console.error("web3.eth.getBlock error: ", err);
-            } else {
-              // console.log("web3.eth.getBlock ", res);
-              var currentTime = res.timestamp;
-              console.log("current timestamp: ", currentTime);
-              var distance = endTime - currentTime;
-              console.log("distance = ", distance);
-              this.runCounter(distance);
-            }
-          });
-        }
-      });
-    }
+  auctionNetworkInstance.methods.endTime().call().then((res) => {
+    console.log('endTime(): ', res);
+    var endTime = res;
+    web3.eth.getBlockNumber().then((res) => {
+        console.log("web3.eth.blockNumber ", res);
+        var blockNumber = res;
+        web3.eth.getBlock(blockNumber).then((res) => {
+          // console.log("web3.eth.getBlock ", res);
+          var currentTime = res.timestamp;
+          console.log("current timestamp: ", currentTime);
+          var distance = endTime - currentTime;
+          console.log("distance = ", distance);
+          this.runCounter(distance);
+        }).catch((err) => {
+          console.error("web3.eth.getBlock error: ", err);
+          return 0;
+        });
+    }).catch((err) => {
+      console.error("getBlockNumber error: ", err);
+      return 0;
+    });
+  }).catch((err) => {
+    console.error("endTime error: ", err);
+    return 0;
   });
+
+  // auctionNetworkInstance.endTime((err, res) => {
+  //   if (err) {
+  //     console.error("getEndTime error: ", err);
+  //   } else {
+  //     console.log('getEndTime(): ', res);
+  //     var endTime = res.c[0];
+  //     console.log("endTime: ", endTime);
+  //     web3.eth.getBlockNumber((err, res) => {
+  //       if (err) {
+  //         console.error("web3.eth.blockNumber error: ", err);
+  //       } else {
+  //         console.log("web3.eth.blockNumber ", res);
+  //         var blockNumber = res;
+  //         web3.eth.getBlock(blockNumber, (err, res) => {
+  //           if (err) {
+  //             console.error("web3.eth.getBlock error: ", err);
+  //           } else {
+  //             // console.log("web3.eth.getBlock ", res);
+  //             var currentTime = res.timestamp;
+  //             console.log("current timestamp: ", currentTime);
+  //             var distance = endTime - currentTime;
+  //             console.log("distance = ", distance);
+  //             this.runCounter(distance);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
 }
 
 function runCounter(distance) {
