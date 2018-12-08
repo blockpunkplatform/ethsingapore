@@ -7,6 +7,59 @@ var highestBidValue = null;
 var userBidValue = null;
 var selected_coin = "eth";
 
+function formatEthPrice(price) {
+  const displayPrice = price / 1000000000000000000;
+  return displayPrice.toFixed(2);
+}
+
+function updateHighestBid() {
+  auctionNetworkInstance.methods.getHighestBid().call().then((res) => {
+    console.log('getHighestBid(): ', res);
+    highestBidValue = formatEthPrice(res);
+    updateUi();
+  }).catch((err) => {
+    console.error("getHighestBid error: ", err);
+  });
+}
+
+function updateFundsByBidder() {
+  auctionNetworkInstance.methods.fundsByBidder(userEthAddress).call().then((res) => {
+    console.log('fundsByBidder(): ', res);
+    userBidValue = formatEthPrice(res);
+    updateUi();
+  }).catch((err) => {
+    console.error("fundsByBidder error: ", err);
+  });
+}
+
+function doBid(
+  source,
+  srcAmount,
+  dest,
+  destAddress,
+  maxDestAmount,
+  minConversionRate,
+  walletId
+) {
+  options = {from: web3.givenProvider.selectedAddress}
+  if (source == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+    options.value = srcAmount
+  }
+  return kyberNetworkInstance.methods.trade(
+    source,
+    srcAmount,
+    dest,
+    destAddress,
+    maxDestAmount,
+    minConversionRate,
+    walletId
+  )
+  .send(options)
+  .then((res) => {
+    console.log(res);
+  });
+}
+
 if (window.ethereum) {
   window.web3 = new Web3(ethereum)
   ethereum.enable()
@@ -25,16 +78,12 @@ try {
     kyberNetworkABI,
     kyberNetworkAddress
   );
-  // var kyberContract = web3.eth.contract(kyberNetworkABI);
-  // kyberNetworkInstance = kyberContract.at(kyberNetworkAddress);
   console.log(kyberNetworkInstance);
 
   auctionNetworkInstance = new web3.eth.Contract(
     auctionABI,
     auctionNetworkAddress
   );
-  // var auctionContract = web3.eth.contract(auctionABI)
-  // auctionNetworkInstance = auctionContract.at(auctionNetworkAddress);
   console.log(auctionNetworkInstance);
   
   console.log(web3);
