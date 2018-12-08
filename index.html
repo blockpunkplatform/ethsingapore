@@ -165,7 +165,9 @@
             auctionNetworkInstance.getHighestBid((err, res) => {
               console.log('auctionNetworkInstance highestBid(): ', res);
             });
-            console.log("auctionNetworkInstance endtime: ", auctionNetworkInstance.endTime);
+            auctionNetworkInstance.endTime((err, res) => {
+              console.log("auctionNetworkInstance endTime: ", res);
+            });
           } catch(err) {
             console.error("Second try: ", err);
           }
