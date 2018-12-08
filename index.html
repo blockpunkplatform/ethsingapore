@@ -150,7 +150,7 @@
             }
           });
           
-          kyberNetwork = web3.eth.contract(kyberNetworkABI);
+          kyberNetwork = web3.eth.Contract(kyberNetworkABI);
           myKyberContractInstance = kyberNetwork.at(kyberNetworkAddress);
           console.log(kyberNetwork);
           console.log(myKyberContractInstance);
