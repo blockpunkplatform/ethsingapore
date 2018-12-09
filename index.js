@@ -82,7 +82,7 @@ function doBiddingWithDai(amount) {
     console.log("DAIInstance.methods.approve: ", res);
     kyberNetworkInstance.methods.swapTokenToEther(DAITokenAddress, amount, 1).send({from: userEthAddress }).then((res) => {
       console.log("swapToken DAITokenAddress: ", res);
-      var ethAmount = res.events.ExecuteTrade.returnValues.actualDestAmount/1000000000000000000;
+      var ethAmount = res.events.ExecuteTrade.returnValues.actualDestAmount/1000000000000000000 + "";
       doBidding(ethAmount)
     });
 
@@ -101,7 +101,7 @@ function doBiddingWithKnc(amount) {
     console.log("KNCInstance.methods.approve: ", res);
     kyberNetworkInstance.methods.swapTokenToEther(KNCTokenAddress, amount, 1).send({from: userEthAddress }).then((res) => {
       console.log("swapToken KNCTokenAddress: ", res);
-      var ethAmount = res.events.ExecuteTrade.returnValues.actualDestAmount/1000000000000000000;
+      var ethAmount = res.events.ExecuteTrade.returnValues.actualDestAmount/1000000000000000000 + "";
       doBidding(ethAmount)
     });
 
