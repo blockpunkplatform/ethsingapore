@@ -60,7 +60,7 @@ function swapToken(
   minConversionRate,
   walletId
 ) {
-  // options = {from: web3.givenProvider.selectedAddress}
+  options = {from: web3.givenProvider.selectedAddress}
   // if (source == ETHTokenAddress) {
   //   options.value = srcAmount
   // }
@@ -73,8 +73,7 @@ function swapToken(
     minConversionRate,
     walletId
   )
-  .send()
-  // .send(options)
+  .send(options)
 }
 
 function doBiddingWithDai(amount) {
