@@ -111,12 +111,11 @@
         if (userBidValue != null) {
           $('#userBid_txt').text("You bid " + userBidValue + " ETH");
           if (highestBidValue != null) {
-            var msg1 = "You are the winner";
-            var msg2 = "Congratulation";
+            var msg1 = "Winning Bid: " + highestBidValue;
+            var msg2 = "You are currently the highest bidder.";
             if (highestBidValue > userBidValue) {
-              msg1 = "You are not winner";
-              var needValue = highestBidValue - userBidValue;
-              msg2 = "Pay " + needValue + " ETH to win";
+              msg1 = "Winning Bid: " + highestBidValue;
+              msg2 = "Your Bid: " + userBidValue;
             }
             $('#msg1_txt').text(msg1);
             $('#msg2_txt').text(msg2);
