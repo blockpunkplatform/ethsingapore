@@ -78,13 +78,15 @@ function swapToken(
 
 function doBiddingWithDai(amount) {
   // swap DAI token to ETH first
-  DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).then((err, res) => {
-    console.log("DAIInstance.methods.approve: ", err);
+  DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).then((res) => {
+    console.log("DAIInstance.methods.approve error: ", err);
     console.log("DAIInstance.methods.approve: ", res);
-    // swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (res) => {
-    //   console.log("swapToken DAITokenAddress: ", res);
-    //   doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
-    // });
+    swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000')
+    .then((err, res) => {
+      console.log("swapToken DAITokenAddress error: ", err);
+      console.log("swapToken DAITokenAddress: ", res);
+      doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
+    });
   })
 }
 
