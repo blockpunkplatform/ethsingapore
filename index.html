@@ -140,10 +140,12 @@
                 doBidding(bidAmount);
                 break;
               case "dai":
-                doBiddingWithDai(bidAmount);
+                var daiAmount = bidAmount * 1000000000000000000;
+                doBiddingWithDai(daiAmount);
                 break;
               case "knc":
-                doBiddingWithKnc(bidAmount);
+                var kncAmount = bidAmount * 1000000000000000000;
+                doBiddingWithKnc(kncAmount);
                 break;
             }
           } catch(err) {
