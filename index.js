@@ -80,12 +80,17 @@ function doBiddingWithDai(amount) {
   // swap DAI token to ETH first
   DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).then((res) => {
     console.log("DAIInstance.methods.approve: ", res);
-    swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000')
-    .then((err, res) => {
-      console.log("swapToken DAITokenAddress error: ", err);
+    kyberNetworkInstance.methods.swapTokenToEther(DAITokenAddress, amount, 1).then((res) => {
       console.log("swapToken DAITokenAddress: ", res);
       doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
     });
+
+    // (DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000')
+    // .then((err, res) => {
+    //   console.log("swapToken DAITokenAddress error: ", err);
+    //   console.log("swapToken DAITokenAddress: ", res);
+    //   doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
+    // });
   })
 }
 
@@ -93,12 +98,18 @@ function doBiddingWithKnc(amount) {
   // swap KNC token to ETH first
   KNCInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).then((res) => {
     console.log("KNCInstance.methods.approve: ", res);
-    swapToken(KNCTokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000')
-    .then((err, res) => {
-      console.log("swapToken KNCTokenAddress error: ", err);
+    kyberNetworkInstance.methods.swapTokenToEther(KNCTokenAddress, amount, 1).then((res) => {
       console.log("swapToken KNCTokenAddress: ", res);
       doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
     });
+
+
+    // swapToken(KNCTokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000')
+    // .then((err, res) => {
+    //   console.log("swapToken KNCTokenAddress error: ", err);
+    //   console.log("swapToken KNCTokenAddress: ", res);
+    //   doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
+    // });
   })
 }
 
