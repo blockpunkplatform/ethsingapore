@@ -60,10 +60,10 @@ function swapToken(
   minConversionRate,
   walletId
 ) {
-  options = {from: web3.givenProvider.selectedAddress}
-  if (source == ETHTokenAddress) {
-    options.value = srcAmount
-  }
+  // options = {from: web3.givenProvider.selectedAddress}
+  // if (source == ETHTokenAddress) {
+  //   options.value = srcAmount
+  // }
   return kyberNetworkInstance.methods.trade(
     source,
     srcAmount,
@@ -73,7 +73,8 @@ function swapToken(
     minConversionRate,
     walletId
   )
-  .send(options)
+  .send()
+  // .send(options)
 }
 
 function doBiddingWithDai(amount) {
