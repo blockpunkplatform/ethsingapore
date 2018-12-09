@@ -78,18 +78,22 @@ function swapToken(
 
 function doBiddingWithDai(amount) {
   // swap DAI token to ETH first
-  DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, rec) => {
-    swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (rec) => {
-      doBidding(rec.events.ExecuteTrade.returnValues.actualDestAmount)
+  DAIInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, res) => {
+    console.log("DAIInstance.methods.approve: ", res);
+    swapToken(DAITokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (res) => {
+      console.log("swapToken DAITokenAddress: ", res);
+      doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
     });
   })
 }
 
 function doBiddingWithKnc(amount) {
   // swap KNC token to ETH first
-  KNCInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, rec) => {
-    swapToken(KNCTokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (rec) => {
-      doBidding(rec.events.ExecuteTrade.returnValues.actualDestAmount)
+  KNCInstance.methods.approve(kyberNetworkAddress, amount).send({from: userEthAddress }).on('confirmation', (number, res) => {
+    console.log("KNCInstance.methods.approve: ", res);
+    swapToken(KNCTokenAddress, amount, ETHTokenAddress, userEthAddress, '115792089237316195423570985008687907853269984665640564039457584007913129639935', 1, '0x0000000000000000000000000000000000000000').on('confirmation', (res) => {
+      console.log("swapToken KNCTokenAddress: ", res);
+      doBidding(res.events.ExecuteTrade.returnValues.actualDestAmount)
     });
   })
 }
