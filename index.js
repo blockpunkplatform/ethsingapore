@@ -171,7 +171,7 @@ try {
     kyberNetworkABI,
     kyberNetworkAddress
   );
-  console.log(kyberNetworkInstance);
+  console.log("kyberNetworkInstance:" ,kyberNetworkInstance);
 
   auctionNetworkInstance = new web3.eth.Contract(
     auctionABI,
