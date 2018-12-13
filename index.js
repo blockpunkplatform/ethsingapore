@@ -12,7 +12,7 @@ if (window.ethereum) {
 }
 
 const kyberNetworkAddress = "0x818E6FECD516Ecc3849DAf6845e3EC868087B755";
-const auctionNetworkAddress = "0xcbf7B14076FE2C62D293E4c62F403b14B1fEa2eb";
+const auctionNetworkAddress = "0x8e315a8b61A445205C342b405b3485E410236712";
 const ETHTokenAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 const DAITokenAddress = "0xaD6D458402F60fD3Bd25163575031ACDce07538D"
 const KNCTokenAddress = "0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6"
